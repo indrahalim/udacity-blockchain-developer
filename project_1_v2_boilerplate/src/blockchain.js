@@ -110,7 +110,21 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
+            let messageTime = parseInt(message.split(':')[1]);
+            let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+            let elapsedTime = currentTime - messageTime;
+            if (elapsedTime >= 5 * 60) {
+                reject(new Error('elapsed time more than 5 minutes'));
+            }
 
+            if (!bitcoinMessage.verify(message, address, signature)) {
+                reject(new Error('cannot verify bitcoin message'))
+            }
+
+            let data = {owner: address, star: star};
+            let block = new BlockClass.Block({data: data});
+            await self._addBlock(block);
+            resolve(block);
         });
     }
 
@@ -140,7 +154,7 @@ class Blockchain {
     getBlockByHeight(height) {
         let self = this;
         return new Promise((resolve, reject) => {
-            let block = self.chain.filter(p => p.height === height)[0];
+            let block = self.chain.filter(b => b.height === height)[0];
             if (block) {
                 resolve(block);
             } else {
@@ -159,7 +173,13 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-
+            self.chain.forEach(block => {
+                let data = block.getBData();
+                if (data.owner == address) {
+                    stars.push(data.star);
+                }
+            })
+            resolve(stars);
         });
     }
 
@@ -173,7 +193,17 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
+            for (const block of self.chain) {
+                if (await block.validate()) {
+                    errorLog.push(new Error('invalid block hash'));
+                }
 
+                let prevBlock = self.chain.filter(b => b.height == block.height - 1)[0];
+                if (block.previousBlockHash != prevBlock.hash) {
+                    errorLog.push(new Error('previous block hash does not match'));
+                }
+            }
+            resolve(errorLog);
         });
     }
 

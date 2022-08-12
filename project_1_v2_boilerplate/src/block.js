@@ -71,9 +71,9 @@ class Block {
 
             // Resolve with the data if the object isn't the Genesis block
             if (self.height > 0) {
-                resolve(data)
+                resolve(data);
             } else {
-                reject(new Error('cannot get genesis block data'))
+                reject(new Error('cannot get genesis block data'));
             }
         })
     }
