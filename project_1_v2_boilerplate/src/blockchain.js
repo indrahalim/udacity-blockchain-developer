@@ -73,6 +73,13 @@ class Blockchain {
 
             self.chain.push(block);
             self.height = self.chain.length;
+
+            const errors = await self.validateChain();
+            if (errors.length > 0) {
+                errors.forEach(err => console.log("validateChainError: " + err));
+                reject(new Error("error validating chain"));
+            }
+            resolve(block);
         });
     }
 
@@ -123,7 +130,14 @@ class Blockchain {
 
             let data = {owner: address, star: star};
             let block = new BlockClass.Block({data: data});
-            await self._addBlock(block);
+            block = await self._addBlock(block);
+
+            const errors = await self.validateChain();
+            if (errors.length > 0) {
+                errors.forEach(err => console.log("validateChainError: " + err));
+                reject(new Error("error validating chain"));
+            }
+
             resolve(block);
         });
     }
@@ -194,12 +208,12 @@ class Blockchain {
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
             for (const block of self.chain) {
-                if (await block.validate()) {
+                if (!await block.validate()) {
                     errorLog.push(new Error('invalid block hash'));
                 }
 
                 let prevBlock = self.chain.filter(b => b.height == block.height - 1)[0];
-                if (block.previousBlockHash != prevBlock.hash) {
+                if (prevBlock && block.previousBlockHash != prevBlock.hash) {
                     errorLog.push(new Error('previous block hash does not match'));
                 }
             }
