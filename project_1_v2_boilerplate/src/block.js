@@ -62,11 +62,11 @@ class Block {
             // Decoding the data to retrieve the JSON representation of the object
             // Parse the data to an object to be retrieve.
             let decodedData = hex2ascii(self.body);
-            let data = JSON.parse(decodedData);
+            let blockData = JSON.parse(decodedData);
 
             // Resolve with the data if the object isn't the Genesis block
             if (self.height > 0) {
-                resolve(data);
+                resolve(blockData);
             } else {
                 reject(new Error('cannot get genesis block data'));
             }

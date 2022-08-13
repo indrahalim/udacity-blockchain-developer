@@ -68,17 +68,19 @@ class Blockchain {
             if (height > 0) {
                 block.previousBlockHash = self.chain[self.height - 1].hash;
             }
+            block.height = height;
             block.time = new Date().getTime().toString().slice(0, -3);
             block.hash = SHA256(JSON.stringify(block)).toString();
-
-            self.chain.push(block);
-            self.height = self.chain.length;
 
             const errors = await self.validateChain();
             if (errors.length > 0) {
                 errors.forEach(err => console.log("validateChainError: " + err));
                 reject(new Error("error validating chain"));
             }
+
+            self.chain.push(block);
+            self.height = self.chain.length;
+
             resolve(block);
         });
     }
@@ -91,6 +93,7 @@ class Blockchain {
      * The method return a Promise that will resolve with the message to be signed
      * @param {*} address
      */
+    // To generate legacy address from bitcoin wallet console use this command: getnewaddress -addresstype legacy
     requestMessageOwnershipVerification(address) {
         return new Promise((resolve) => {
             resolve(`${address}:${new Date().getTime().toString().slice(0, -3)}:starRegistry`);
@@ -114,6 +117,7 @@ class Blockchain {
      * @param {*} signature
      * @param {*} star
      */
+
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
@@ -186,13 +190,16 @@ class Blockchain {
     getStarsByWalletAddress(address) {
         let self = this;
         let stars = [];
-        return new Promise((resolve, reject) => {
-            self.chain.forEach(block => {
-                let data = block.getBData();
-                if (data.owner == address) {
-                    stars.push(data.star);
-                }
-            })
+        return new Promise(async(resolve, reject) => {
+            for (let block of self.chain) {
+                await block.getBData()
+                    .catch(err => console.log("cannot get data: "+ err))
+                    .then(bData => {
+                        if (bData && bData.data.owner === address) {
+                            stars.push(bData.data);
+                        }
+                    });
+            };
             resolve(stars);
         });
     }
