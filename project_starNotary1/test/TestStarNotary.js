@@ -39,4 +39,13 @@ contract('StarNotary', (accs) => {
     assert.equal(secondOwner, secondUser);
   });
 
+  // Test if the smart contract can change star name
+  it('can change name' , async () => {
+    let instance = await StarNotary.deployed();
+    let newName = 'New Star Name';
+    await instance.changeName(newName);
+    let starName = await instance.starName.call();
+    assert.equal(starName, newName);
+  });
+
 });
