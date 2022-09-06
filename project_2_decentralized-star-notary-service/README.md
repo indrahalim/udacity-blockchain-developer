@@ -11,10 +11,12 @@
 
 ### Contract / Token Info
 
-Contract Address: https://rinkeby.etherscan.io/address/0x9d7db2c58c0c874ac9d411705d8596a355c55d3c
-Token Name: Udacity Star Token
-Token Symbol: UDCS
-Sample Token: https://rinkeby.etherscan.io/token/0x9d7db2c58c0c874ac9d411705d8596a355c55d3c
+| Info            | |
+| --------------- | ------------------------------------------------------------------------------- |
+| Contract Address| https://rinkeby.etherscan.io/address/0x9d7db2c58c0c874ac9d411705d8596a355c55d3c |
+| Token Name      | Udacity Star Token |
+| Token Symbol    | UDCS |
+| Sample Token    | https://rinkeby.etherscan.io/token/0x9d7db2c58c0c874ac9d411705d8596a355c55d3c |
 
 ---
 
