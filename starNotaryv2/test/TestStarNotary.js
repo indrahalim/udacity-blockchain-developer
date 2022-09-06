@@ -63,18 +63,17 @@ it('lets user2 buy a star and decreases its balance in ether', async() => {
     let starId = 5;
     let starPrice = web3.utils.toWei(".01", "ether");
     let balance = web3.utils.toWei(".05", "ether");
-
     await instance.createStar('awesome star', starId, {from: user1});
     await instance.putStarUpForSale(starId, starPrice, {from: user1});
 
-    let balanceOfUser1BeforeTransaction = await web3.eth.getBalance(user1);
+    const balanceOfUser1BeforeTransaction = await web3.eth.getBalance(user1);
     const balanceOfUser2BeforeTransaction = await web3.eth.getBalance(user2);
-    let resp = await instance.buyStar(starId, {from: user2, value: balance});
-    const gasUsed = resp.receipt.effectiveGasPrice;
-    console.log(resp);
+    await instance.buyStar(starId, {from: user2, value: balance, gasPrice:100});
 
-    const balanceAfterUser2BuysStar = await web3.eth.getBalance(user2);
-    let value = Number(balanceOfUser2BeforeTransaction) - Number(balanceAfterUser2BuysStar);
-    // assert.equal(value, Number(starPrice));
+    const balanceOfUser1AfterTransaction = await web3.eth.getBalance(user1);
+    const balanceOfuser2AfterTransaction = await web3.eth.getBalance(user2);
+    let value = Number(balanceOfUser1AfterTransaction) - Number(balanceOfUser1BeforeTransaction);
+
+    assert.equal(value, starPrice);
   });
 
