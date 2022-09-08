@@ -20,7 +20,7 @@ contract LemonadeStand {
         uint  price;
         State  state;
         address  payable seller;
-        address  buyer;
+        address  payable buyer;
     }
 
     // Define a public mapping 'items' that maps the SKU (a number) to an Item.
@@ -61,6 +61,15 @@ contract LemonadeStand {
         _;
     }
 
+    modifier checkValue(uint _sku)  {
+      uint price = items[_sku].price;
+      if (msg.value > price) {
+        uint amountToRefund = msg.value - price;
+        items[_sku].buyer.transfer(amountToRefund);
+      }
+      _;
+    }
+
     constructor() payable {
         owner = msg.sender;
         skuCount = 0;
@@ -74,15 +83,22 @@ contract LemonadeStand {
         emit ForSale(skuCount);
 
         // Add the new item into inventory and mark it for sale
-        items[skuCount] = Item({name: _name, sku: skuCount, price: _price, state: State.ForSale, seller: payable(msg.sender), buyer: address(0)});
+        items[skuCount] = Item({name: _name, sku: skuCount, price: _price, state: State.ForSale, seller: payable(msg.sender), buyer: payable(0)});
     }
 
-    function buyItem(uint sku) forSale(sku) paidEnough(items[sku].price) public payable{
+    function buyItem(uint sku) 
+        // Call modifier to check if sku is for sale
+        forSale(sku)
+        // Call modifer to check if buyer has paid enough
+        paidEnough(items[sku].price)
+        // Call modifer to send any excess ether back to buyer
+        // checkValue(sku) public payable {
+        public payable {
         address buyer = msg.sender;
         uint price = items[sku].price;
 
         // Update Buyer
-        items[sku].buyer = buyer;
+        items[sku].buyer = payable(buyer);
 
         // Update State
         items[sku].state = State.Sold;
