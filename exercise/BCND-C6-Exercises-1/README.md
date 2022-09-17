@@ -37,6 +37,13 @@ This code was created with the following versions of tools:
 * Node v8.9.4
 * Ganache v1.2.3
 
+### Installation
+```bash
+npm install -g truffle@v5.0.1
+npm install -g solc@v0.5.0
+npm install ganache --global
+```
+
 ## Troubleshooting
 
 * Ensure Ganache is running on port 8545
